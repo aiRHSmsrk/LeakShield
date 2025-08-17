@@ -1,0 +1,19 @@
+<!--?xml version="1.0" encoding="UTF-8"?-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="640" height="640">
+  <title>Shield with Alert Badge (transparent)</title>
+  <!-- Shield (navy) -->
+  <path fill="#0B1E46" d="
+    M320 96
+    C 258 96, 180 116, 148 132
+    L 148 268
+    C 148 372, 228 446, 320 492
+    C 412 446, 492 372, 492 268
+    L 492 132
+    C 460 116, 382 96, 320 96
+    Z"></path>
+  <!-- Alert circle (orange/red) -->
+  <circle cx="470" cy="210" r="110" fill="#FF5A3D"></circle>
+  <!-- Exclamation mark -->
+  <rect x="462" y="150" width="16" height="90" rx="8" fill="#FFFFFF"></rect>
+  <circle cx="470" cy="260" r="12" fill="#FFFFFF"></circle>
+</svg>
