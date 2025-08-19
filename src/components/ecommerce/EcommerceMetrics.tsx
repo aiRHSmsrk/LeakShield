@@ -5,6 +5,7 @@ import {
   GroupIcon,
 } from "../../icons";
 import Badge from "../ui/badge/Badge";
+import { API_URLS, API_CONFIG } from "../../config/api";
 
 interface VulnerabilityMetrics {
   totalVulnerabilities: number;
@@ -14,11 +15,6 @@ interface VulnerabilityMetrics {
   weeklyChange: number;
   monthlyChange: number;
 }
-
-const NGROK_URL = "https://7638440c97e7.ngrok-free.app/vulnerabilities";
-const NGROK_HEADERS: Record<string, string> = {
-  "ngrok-skip-browser-warning": "true",
-};
 
 export default function EcommerceMetrics() {
   const [metrics, setMetrics] = useState<VulnerabilityMetrics>({
@@ -35,9 +31,9 @@ export default function EcommerceMetrics() {
     const fetchAndCalculateMetrics = async () => {
       try {
         setLoading(true);
-        const res = await fetch(NGROK_URL, {
-          headers: NGROK_HEADERS,
-          cache: "no-store",
+        const res = await fetch(API_URLS.VULNERABILITIES, {
+          headers: API_CONFIG.HEADERS.NGROK_HEADERS,
+          cache: API_CONFIG.OPTIONS.CACHE,
         });
         
         if (!res.ok) throw new Error(`HTTP ${res.status}`);

@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -8,6 +8,8 @@ import {
   TableRow,
 } from "../ui/table";
 import Badge from "../ui/badge/Badge";
+import { useAnalyticsEvents } from "../../hooks/useAnalytics";
+import { API_URLS, API_CONFIG } from "../../config/api";
 
 // ---- KEV item (from your API) ----
 interface KevItem {
@@ -148,12 +150,9 @@ function getCWERiskLevel(cweIds: string[], allCweCounts: Record<string, number>,
   }
 }
 
-const NGROK_URL = "https://7638440c97e7.ngrok-free.app/vulnerabilities";
-const NGROK_HEADERS: Record<string, string> = {
-  "ngrok-skip-browser-warning": "true",
-};
 
 export default function RecentOrders() {
+  const { trackEvent } = useAnalyticsEvents();
   const [rows, setRows] = useState<Row[]>([]);
   const [allRows, setAllRows] = useState<Row[]>([]);
   const [filteredRows, setFilteredRows] = useState<Row[]>([]);
@@ -175,9 +174,9 @@ export default function RecentOrders() {
     const fetchVulnerabilities = async () => {
       try {
         setLoading(true);
-        const res = await fetch(NGROK_URL, {
-          headers: NGROK_HEADERS,
-          cache: "no-store",
+        const res = await fetch(API_URLS.VULNERABILITIES, {
+          headers: API_CONFIG.HEADERS.NGROK_HEADERS,
+          cache: API_CONFIG.OPTIONS.CACHE,
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data: KevItem[] = await res.json();
@@ -248,6 +247,14 @@ export default function RecentOrders() {
         setAllRows(mapped);
         setFilteredRows(mapped);
         setRows(mapped.slice(0, displayLimit));
+        
+        // Track successful data load
+        trackEvent('vulnerabilities_loaded', {
+          total_count: mapped.length,
+          high_risk_count: mapped.filter(r => r.cwesRisk === 'high').length,
+          medium_risk_count: mapped.filter(r => r.cwesRisk === 'medium').length,
+          low_risk_count: mapped.filter(r => r.cwesRisk === 'low').length
+        });
       } catch (err) {
         console.error("[VULNS] fetch failed:", err);
         setRows([]); // keep UI stable
@@ -320,9 +327,17 @@ export default function RecentOrders() {
     if (rows.length < filteredRows.length) {
       // Show all filtered data
       setRows(filteredRows);
+      trackEvent('vulnerability_show_all', {
+        showing_count: filteredRows.length,
+        total_vulnerabilities: allRows.length
+      });
     } else {
       // Reset to initial limit
       setRows(filteredRows.slice(0, 10));
+      trackEvent('vulnerability_show_less', {
+        showing_count: 10,
+        total_vulnerabilities: allRows.length
+      });
     }
   };
 
@@ -330,6 +345,12 @@ export default function RecentOrders() {
 
   const handleFilterChange = (key: keyof typeof filters, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
+    // Track filter usage
+    trackEvent('vulnerability_filter_used', {
+      filter_type: key,
+      filter_value: value,
+      total_vulnerabilities: allRows.length
+    });
   };
 
   const clearFilters = () => {
@@ -676,6 +697,12 @@ export default function RecentOrders() {
                     href={item.link}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => trackEvent('vulnerability_detail_clicked', {
+                      cve_id: item.cveID,
+                      vulnerability_name: item.vulnerabilityName,
+                      product: item.product,
+                      risk_level: item.cwesRisk
+                    })}
                     className="text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
                   >
                     View Details

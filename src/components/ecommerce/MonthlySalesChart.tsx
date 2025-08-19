@@ -4,6 +4,7 @@ import { ApexOptions } from "apexcharts";
 // import { DropdownItem } from "../ui/dropdown/DropdownItem";
 // import { MoreDotIcon } from "../../icons";
 import { useState, useEffect } from "react";
+import { API_URLS, API_CONFIG } from "../../config/api";
 
 interface VulnerabilityData {
   cveID: string;
@@ -14,11 +15,6 @@ interface VulnerabilityData {
   cwes?: Array<{ cweID?: string; description?: string }> | string[] | string | null;
 }
 
-const NGROK_URL = "https://7638440c97e7.ngrok-free.app/vulnerabilities";
-const NGROK_HEADERS: Record<string, string> = {
-  "ngrok-skip-browser-warning": "true",
-};
-
 export default function MonthlySalesChart() {
   const [chartData, setChartData] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,9 +23,9 @@ export default function MonthlySalesChart() {
     const fetchVulnerabilityData = async () => {
       try {
         setLoading(true);
-        const res = await fetch(NGROK_URL, {
-          headers: NGROK_HEADERS,
-          cache: "no-store",
+        const res = await fetch(API_URLS.VULNERABILITIES, {
+          headers: API_CONFIG.HEADERS.NGROK_HEADERS,
+          cache: API_CONFIG.OPTIONS.CACHE,
         });
         
         if (!res.ok) throw new Error(`HTTP ${res.status}`);

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { MoreDotIcon } from "../../icons";
+import { API_URLS, API_CONFIG } from "../../config/api";
 
 interface VulnerabilityMetrics {
   totalVulnerabilities: number;
@@ -16,10 +17,10 @@ interface VulnerabilityMetrics {
   uniqueVendors: number;
 }
 
-const NGROK_URL = "https://7638440c97e7.ngrok-free.app/vulnerabilities";
-const NGROK_HEADERS: Record<string, string> = {
-  "ngrok-skip-browser-warning": "true",
-};
+// const NGROK_URL = "https://7638440c97e7.ngrok-free.app/vulnerabilities";
+// const NGROK_HEADERS: Record<string, string> = {
+//   "ngrok-skip-browser-warning": "true",
+// };
 
 export default function MonthlyTarget() {
   const [metrics, setMetrics] = useState<VulnerabilityMetrics>({
@@ -38,9 +39,9 @@ export default function MonthlyTarget() {
     const fetchVulnerabilityMetrics = async () => {
       try {
         setLoading(true);
-        const res = await fetch(NGROK_URL, {
-          headers: NGROK_HEADERS,
-          cache: "no-store",
+          const res = await fetch(API_URLS.VULNERABILITIES, {
+          headers: API_CONFIG.HEADERS.NGROK_HEADERS,
+          cache: API_CONFIG.OPTIONS.CACHE,
         });
         
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
