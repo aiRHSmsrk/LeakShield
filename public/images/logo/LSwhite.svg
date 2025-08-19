@@ -1,0 +1,22 @@
+<!--?xml version="1.0" encoding="UTF-8"?-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>Shield Alert – White Variant (Dark Mode)</title>
+  
+  <!-- Shield (white) -->
+  <path fill="#FFFFFF" d="
+    M256 64
+    C 182 64, 102 84, 72 100
+    L 72 236
+    C 72 340, 166 414, 256 460
+    C 346 414, 440 340, 440 236
+    L 440 100
+    C 410 84, 330 64, 256 64
+    Z"></path>
+  
+  <!-- Alert circle (red) -->
+  <circle cx="400" cy="160" r="100" fill="#FF5A3D"></circle>
+  
+  <!-- Exclamation mark (white) -->
+  <rect x="392" y="110" width="16" height="80" rx="8" fill="#FFFFFF"></rect>
+  <circle cx="400" cy="210" r="12" fill="#FFFFFF"></circle>
+</svg>

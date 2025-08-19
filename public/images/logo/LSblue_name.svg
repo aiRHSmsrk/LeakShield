@@ -1,0 +1,27 @@
+<!--?xml version="1.0" encoding="UTF-8"?-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 640" width="1000" height="640">
+  <title>LeakShield Logo</title>
+  
+  <!-- Shield (navy) -->
+  <path fill="#0B1E46" d="
+    M200 96
+    C 138 96, 60 116, 28 132
+    L 28 268
+    C 28 372, 108 446, 200 492
+    C 292 446, 372 372, 372 268
+    L 372 132
+    C 340 116, 262 96, 200 96
+    Z"></path>
+  
+  <!-- Alert circle (orange/red) -->
+  <circle cx="350" cy="210" r="110" fill="#FF5A3D"></circle>
+  
+  <!-- Exclamation mark -->
+  <rect x="342" y="150" width="16" height="90" rx="8" fill="#FFFFFF"></rect>
+  <circle cx="350" cy="260" r="12" fill="#FFFFFF"></circle>
+  
+  <!-- Brand Name -->
+  <text x="500" y="300" font-family="Arial, Helvetica, sans-serif" font-size="96" font-weight="bold" fill="#0B1E46">
+    LeakShield
+  </text>
+</svg>

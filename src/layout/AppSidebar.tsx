@@ -309,14 +309,14 @@ const AppSidebar: React.FC = () => {
       {/* Large logos */}
       <img
         className="dark:hidden"
-        src="/images/logo/LSlogo.svg"
+        src="/images/logo/LSblue_name.svg"
         alt="Logo"
         width={150}
         height={40}
       />
       <img
         className="hidden dark:block"
-        src="/images/logo/LSlogoDark.svg"
+        src="/images/logo/LSwhite_name.svg"
         alt="Logo"
         width={150}
         height={40}
@@ -327,14 +327,14 @@ const AppSidebar: React.FC = () => {
       {/* Small logos */}
       <img
         className="dark:hidden"
-        src="/images/logo/LogoLS.svg"
+        src="/images/logo/LSblue.svg"
         alt="Logo"
         width={48}
         height={48}
       />
       <img
         className="hidden dark:block"
-        src="/images/logo/logo-ls-light.svg"
+        src="/images/logo/LSwhite"
         alt="Logo"
         width={48}
         height={48}

@@ -16,7 +16,7 @@ interface VulnerabilityMetrics {
   uniqueVendors: number;
 }
 
-const NGROK_URL = "https://005b38a5e9eb.ngrok-free.app/vulnerabilities";
+const NGROK_URL = "https://7638440c97e7.ngrok-free.app/vulnerabilities";
 const NGROK_HEADERS: Record<string, string> = {
   "ngrok-skip-browser-warning": "true",
 };
