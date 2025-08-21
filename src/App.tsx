@@ -39,8 +39,8 @@ export default function App() {
             <ScrollToTop />
             <Routes>
               {/* Public Landing Page */}
-              {/* <Route index path="/" element={<Landing />} /> */}
-               <Route index path="/" element={<Home />} />
+              <Route index path="/" element={<Landing />} />
+               
 
               {/* Dashboard Layout now public preview; components can show auth prompt */}
               <Route element={<AppLayout /> }>
