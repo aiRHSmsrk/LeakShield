@@ -20,6 +20,7 @@ import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import { AnalyticsWrapper } from "./components/common/AnalyticsWrapper";
+import Landing from "./pages/Landing"; // Added landing page
 
 export default function App() {
   return (
@@ -28,9 +29,14 @@ export default function App() {
         <AnalyticsWrapper>
           <ScrollToTop />
           <Routes>
-            {/* Dashboard Layout */}
+            {/* Public Landing Page */}
+            <Route index path="/" element={<Landing />} />
+
+            {/* Dashboard Layout - moved to /app (and alias /dashboard) */}
             <Route element={<AppLayout />}>
-              <Route index path="/" element={<Home />} />
+              <Route path="/app" element={<Home />} />
+              <Route path="/dashboard" element={<Home />} />
+              {/* Existing dashboard index route kept for backward compatibility */}
 
               {/* Others Page */}
               <Route path="/profile" element={<UserProfiles />} />
