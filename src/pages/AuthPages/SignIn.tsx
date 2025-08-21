@@ -20,3 +20,5 @@ export default function SignIn() {
     </>
   );
 }
+// This component handles the sign-in process for users, redirecting them to the app if already authenticated.
+// It uses Firebase authentication and navigates to the app dashboard upon successful sign-in.
