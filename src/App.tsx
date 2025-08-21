@@ -21,55 +21,59 @@ import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import { AnalyticsWrapper } from "./components/common/AnalyticsWrapper";
 import Landing from "./pages/Landing"; // Added landing page
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './config/firebase';
+import { useEffect, useState } from 'react';
+import { AuthPromptProvider } from './context/AuthPromptContext';
 
 export default function App() {
+  const [user, setUser] = useState<any>(null);
+  const [authReady, setAuthReady] = useState(false);
+  useEffect(()=>{ const unsub = onAuthStateChanged(auth, u=>{ setUser(u); setAuthReady(true); }); return ()=>unsub(); },[]);
+  if(!authReady) return <div className="p-10 text-center">Loading...</div>;
   return (
     <>
       <Router>
-        <AnalyticsWrapper>
-          <ScrollToTop />
-          <Routes>
-            {/* Public Landing Page */}
-            <Route index path="/" element={<Landing />} />
+        <AuthPromptProvider>
+          <AnalyticsWrapper>
+            <ScrollToTop />
+            <Routes>
+              {/* Public Landing Page */}
+              <Route index path="/" element={<Landing />} />
 
-            {/* Dashboard Layout - moved to /app (and alias /dashboard) */}
-            <Route element={<AppLayout />}>
-              <Route path="/app" element={<Home />} />
-              <Route path="/dashboard" element={<Home />} />
-              {/* Existing dashboard index route kept for backward compatibility */}
+              {/* Dashboard Layout now public preview; components can show auth prompt */}
+              <Route element={<AppLayout /> }>
+                <Route path="/app" element={<Home />} />
+                <Route path="/dashboard" element={<Home />} />
+                {/* Others Page */}
+                <Route path="/profile" element={user ? <UserProfiles /> : <Landing />} />
+                <Route path="/calendar" element={user ? <Calendar /> : <Landing />} />
+                <Route path="/blank" element={user ? <Blank /> : <Landing />} />
+                {/* Forms */}
+                <Route path="/form-elements" element={user ? <FormElements /> : <Landing />} />
+                {/* Tables */}
+                <Route path="/basic-tables" element={user ? <BasicTables /> : <Landing />} />
+                {/* Ui Elements */}
+                <Route path="/alerts" element={user ? <Alerts /> : <Landing />} />
+                <Route path="/avatars" element={user ? <Avatars /> : <Landing />} />
+                <Route path="/badge" element={user ? <Badges /> : <Landing />} />
+                <Route path="/buttons" element={user ? <Buttons /> : <Landing />} />
+                <Route path="/images" element={user ? <Images /> : <Landing />} />
+                <Route path="/videos" element={user ? <Videos /> : <Landing />} />
+                {/* Charts */}
+                <Route path="/line-chart" element={user ? <LineChart /> : <Landing />} />
+                <Route path="/bar-chart" element={user ? <BarChart /> : <Landing />} />
+              </Route>
 
-              {/* Others Page */}
-              <Route path="/profile" element={<UserProfiles />} />
-              <Route path="/calendar" element={<Calendar />} />
-              <Route path="/blank" element={<Blank />} />
+              {/* Auth Layout */}
+              <Route path="/signin" element={<SignIn />} />
+              <Route path="/signup" element={<SignUp />} />
 
-              {/* Forms */}
-              <Route path="/form-elements" element={<FormElements />} />
-
-              {/* Tables */}
-              <Route path="/basic-tables" element={<BasicTables />} />
-
-              {/* Ui Elements */}
-              <Route path="/alerts" element={<Alerts />} />
-              <Route path="/avatars" element={<Avatars />} />
-              <Route path="/badge" element={<Badges />} />
-              <Route path="/buttons" element={<Buttons />} />
-              <Route path="/images" element={<Images />} />
-              <Route path="/videos" element={<Videos />} />
-
-              {/* Charts */}
-              <Route path="/line-chart" element={<LineChart />} />
-              <Route path="/bar-chart" element={<BarChart />} />
-            </Route>
-
-            {/* Auth Layout */}
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/signup" element={<SignUp />} />
-
-            {/* Fallback Route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AnalyticsWrapper>
+              {/* Fallback Route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AnalyticsWrapper>
+        </AuthPromptProvider>
       </Router>
       <Analytics />
     </>

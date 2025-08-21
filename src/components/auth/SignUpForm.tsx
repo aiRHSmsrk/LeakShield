@@ -1,13 +1,20 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
+import { auth, googleProvider } from "../../config/firebase";
+import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const [form, setForm] = useState({ fname: '', lname: '', email: '', password: '' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
   return (
     <div className="flex flex-col flex-1 w-full overflow-y-auto lg:w-1/2 no-scrollbar">
       <div className="w-full max-w-md mx-auto mb-5 sm:pt-10">
@@ -17,6 +24,21 @@ export default function SignUpForm() {
         >
           <ChevronLeftIcon className="size-5" />
           Back to dashboard
+        </Link>
+      </div>
+      {/* Mobile / small screen logo (desktop branding handled by side panel) */}
+      <div className="w-full max-w-md mx-auto mt-2 mb-4 flex justify-center lg:hidden">
+        <Link to="/" className="inline-flex items-center gap-2">
+          <img
+            className="h-10 w-auto dark:hidden"
+            src="/images/logo/LSblue_name.svg"
+            alt="LeakShield"
+          />
+          <img
+            className="hidden h-10 w-auto dark:block"
+            src="/images/logo/LSwhite_name.svg"
+            alt="LeakShield"
+          />
         </Link>
       </div>
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
@@ -30,8 +52,8 @@ export default function SignUpForm() {
             </p>
           </div>
           <div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
-              <button className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
+            <div className="grid grid-cols-1 gap-3 sm:gap-5">
+              <button onClick={async (e)=>{ e.preventDefault(); setError(null); setLoading(true); try { await signInWithPopup(auth, googleProvider); navigate('/app'); } catch(err:any){ setError(err.message);} finally { setLoading(false);} }} className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
                 <svg
                   width="20"
                   height="20"
@@ -58,19 +80,6 @@ export default function SignUpForm() {
                 </svg>
                 Sign up with Google
               </button>
-              <button className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
-                <svg
-                  width="21"
-                  className="fill-current"
-                  height="20"
-                  viewBox="0 0 21 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M15.6705 1.875H18.4272L12.4047 8.75833L19.4897 18.125H13.9422L9.59717 12.4442L4.62554 18.125H1.86721L8.30887 10.7625L1.51221 1.875H7.20054L11.128 7.0675L15.6705 1.875ZM14.703 16.475H16.2305L6.37054 3.43833H4.73137L14.703 16.475Z" />
-                </svg>
-                Sign up with X
-              </button>
             </div>
             <div className="relative py-3 sm:py-5">
               <div className="absolute inset-0 flex items-center">
@@ -82,7 +91,7 @@ export default function SignUpForm() {
                 </span>
               </div>
             </div>
-            <form>
+            <form onSubmit={async (e)=>{ e.preventDefault(); setError(null); setSuccess(false); if(!form.email || !form.password){ return; } setLoading(true); try { await createUserWithEmailAndPassword(auth, form.email, form.password); setSuccess(true); navigate('/app'); } catch(err:any){ setError(err.message);} finally { setLoading(false);} }}>
               <div className="space-y-5">
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   {/* <!-- First Name --> */}
@@ -92,8 +101,8 @@ export default function SignUpForm() {
                     </Label>
                     <Input
                       type="text"
-                      id="fname"
-                      name="fname"
+                      value={form.fname}
+                      onChange={e=>setForm(f=>({...f,fname:e.target.value}))}
                       placeholder="Enter your first name"
                     />
                   </div>
@@ -104,8 +113,8 @@ export default function SignUpForm() {
                     </Label>
                     <Input
                       type="text"
-                      id="lname"
-                      name="lname"
+                      value={form.lname}
+                      onChange={e=>setForm(f=>({...f,lname:e.target.value}))}
                       placeholder="Enter your last name"
                     />
                   </div>
@@ -117,8 +126,8 @@ export default function SignUpForm() {
                   </Label>
                   <Input
                     type="email"
-                    id="email"
-                    name="email"
+                    value={form.email}
+                    onChange={e=>setForm(f=>({...f,email:e.target.value}))}
                     placeholder="Enter your email"
                   />
                 </div>
@@ -131,6 +140,8 @@ export default function SignUpForm() {
                     <Input
                       placeholder="Enter your password"
                       type={showPassword ? "text" : "password"}
+                      value={form.password}
+                      onChange={e=>setForm(f=>({...f,password:e.target.value}))}
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -152,20 +163,22 @@ export default function SignUpForm() {
                     onChange={setIsChecked}
                   />
                   <p className="inline-block font-normal text-gray-500 dark:text-gray-400">
-                    By creating an account means you agree to the{" "}
+                    By creating an account means you agree to the {" "}
                     <span className="text-gray-800 dark:text-white/90">
                       Terms and Conditions,
                     </span>{" "}
-                    and our{" "}
+                    and our {" "}
                     <span className="text-gray-800 dark:text-white">
                       Privacy Policy
                     </span>
                   </p>
                 </div>
+                {error && <p className="text-sm text-error-500">{error}</p>}
+                {success && <p className="text-sm text-emerald-500">Account created.</p>}
                 {/* <!-- Button --> */}
                 <div>
-                  <button className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
-                    Sign Up
+                  <button disabled={loading} className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600 disabled:opacity-50">
+                    {loading ? 'Creating...' : 'Sign Up'}
                   </button>
                 </div>
               </div>

@@ -5,6 +5,10 @@ import { useSidebar } from "../context/SidebarContext";
 import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
 // import NotificationDropdown from "../components/header/NotificationDropdown";
 // import UserDropdown from "../components/header/UserDropdown";
+import { signOut } from 'firebase/auth';
+import { auth } from '../config/firebase';
+import { useAuthPrompt } from '../context/AuthPromptContext';
+import { useNavigate } from 'react-router';
 
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
@@ -39,6 +43,11 @@ const AppHeader: React.FC = () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  const { user } = useAuthPrompt();
+  const navigate = useNavigate();
+  const [signingOut, setSigningOut] = useState(false);
+  const handleLogout = async () => { setSigningOut(true); try { await signOut(auth); navigate('/'); } catch(e){ console.error('Logout failed', e);} finally { setSigningOut(false);} };
 
   return (
     <header className="sticky top-0 flex w-full bg-white border-gray-200 z-99999 dark:border-gray-800 dark:bg-gray-900 lg:border-b">
@@ -171,7 +180,22 @@ const AppHeader: React.FC = () => {
             {/* <!-- Dark Mode Toggler --> */}
             <ThemeToggleButton />
             {/* <!-- Dark Mode Toggler --> */}
-            
+            {user && (
+              <button onClick={handleLogout} disabled={signingOut} className="inline-flex items-center justify-center w-10 h-10 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700" title="Logout">
+                {signingOut ? (
+                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" />
+                    <path className="opacity-75" d="M4 12a8 8 0 018-8" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                )}
+              </button>
+            )}
             {/* <!-- Notification Menu Area --> <NotificationDropdown /> */}
           </div>
           {/* <!-- User Area --> <UserDropdown />*/}

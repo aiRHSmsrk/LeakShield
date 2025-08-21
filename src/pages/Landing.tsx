@@ -5,6 +5,8 @@ import { Helmet } from 'react-helmet-async';
 import EcommerceMetrics from '../components/ecommerce/EcommerceMetrics';
 import MonthlySalesChart from '../components/ecommerce/MonthlySalesChart';
 import { API_URLS, API_CONFIG } from '../config/api';
+import { db } from '../config/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 // Lightweight FAQ data
 const FAQS = [
@@ -87,17 +89,26 @@ export default function Landing() {
     return () => { isMounted = false; };
   }, [trackEvent]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.email || !form.message) return;
     setFormStatus('submitting');
-    // Simulate async submit
-    setTimeout(() => {
+    try {
+      await addDoc(collection(db, 'contactMessages'), {
+        name: form.name,
+        email: form.email,
+        company: form.company,
+        message: form.message,
+        createdAt: serverTimestamp(),
+      });
       setFormStatus('sent');
       trackEvent('contact_form_submitted', { ...form });
       setForm({ name: '', email: '', company: '', message: '' });
       setTimeout(() => setFormStatus('idle'), 4000);
-    }, 900);
+    } catch (err) {
+      console.error(err);
+      setFormStatus('idle');
+    }
   };
 
   const faqJsonLd = {
@@ -139,7 +150,7 @@ export default function Landing() {
                 Get Started
               </a>
               <a
-                href="/dashboard"
+                href="/app"
                 onClick={() => trackEvent('hero_cta_clicked', { cta: 'view_dashboard' })}
                 className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
               >

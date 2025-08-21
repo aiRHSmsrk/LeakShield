@@ -1,14 +1,21 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
+import { auth, googleProvider } from "../../config/firebase";
+import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const [form, setForm] = useState({ email: '', password: '' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col flex-1">
       <div className="w-full max-w-md pt-10 mx-auto">
@@ -18,6 +25,21 @@ export default function SignInForm() {
         >
           <ChevronLeftIcon className="size-5" />
           Back to dashboard
+        </Link>
+      </div>
+      {/* Mobile / small screen logo (desktop version already in Auth layout side panel) */}
+      <div className="w-full max-w-md mx-auto mt-6 mb-2 flex justify-center lg:hidden">
+        <Link to="/" className="inline-flex items-center gap-2">
+          <img
+            className="h-10 w-auto dark:hidden"
+            src="/images/logo/LSblue_name.svg"
+            alt="LeakShield"
+          />
+          <img
+            className="hidden h-10 w-auto dark:block"
+            src="/images/logo/LSwhite_name.svg"
+            alt="LeakShield"
+          />
         </Link>
       </div>
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
@@ -31,8 +53,8 @@ export default function SignInForm() {
             </p>
           </div>
           <div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
-              <button className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
+            <div className="grid grid-cols-1 gap-3 sm:gap-5">
+              <button onClick={async (e)=>{ e.preventDefault(); setError(null); setLoading(true); try { await signInWithPopup(auth, googleProvider); navigate('/app'); } catch(err:any){ setError(err.message);} finally { setLoading(false);} }} className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
                 <svg
                   width="20"
                   height="20"
@@ -59,19 +81,6 @@ export default function SignInForm() {
                 </svg>
                 Sign in with Google
               </button>
-              <button className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
-                <svg
-                  width="21"
-                  className="fill-current"
-                  height="20"
-                  viewBox="0 0 21 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M15.6705 1.875H18.4272L12.4047 8.75833L19.4897 18.125H13.9422L9.59717 12.4442L4.62554 18.125H1.86721L8.30887 10.7625L1.51221 1.875H7.20054L11.128 7.0675L15.6705 1.875ZM14.703 16.475H16.2305L6.37054 3.43833H4.73137L14.703 16.475Z" />
-                </svg>
-                Sign in with X
-              </button>
             </div>
             <div className="relative py-3 sm:py-5">
               <div className="absolute inset-0 flex items-center">
@@ -83,13 +92,13 @@ export default function SignInForm() {
                 </span>
               </div>
             </div>
-            <form>
+            <form onSubmit={async (e)=>{ e.preventDefault(); setError(null); if(!form.email || !form.password) return; setLoading(true); try { await signInWithEmailAndPassword(auth, form.email, form.password); navigate('/app'); } catch(err:any){ setError(err.message);} finally { setLoading(false);} }}>
               <div className="space-y-6">
                 <div>
                   <Label>
                     Email <span className="text-error-500">*</span>{" "}
                   </Label>
-                  <Input placeholder="info@gmail.com" />
+                  <Input placeholder="info@gmail.com" value={form.email} onChange={e=>setForm(f=>({...f,email:e.target.value}))} />
                 </div>
                 <div>
                   <Label>
@@ -99,6 +108,8 @@ export default function SignInForm() {
                     <Input
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
+                      value={form.password}
+                      onChange={e=>setForm(f=>({...f,password:e.target.value}))}
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -126,9 +137,10 @@ export default function SignInForm() {
                     Forgot password?
                   </Link>
                 </div>
+                {error && <p className="text-sm text-error-500">{error}</p>}
                 <div>
-                  <Button className="w-full" size="sm">
-                    Sign in
+                  <Button disabled={loading} className="w-full" size="sm">
+                    {loading ? 'Signing in...' : 'Sign in'}
                   </Button>
                 </div>
               </div>
